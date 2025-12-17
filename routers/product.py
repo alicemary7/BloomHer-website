@@ -44,7 +44,7 @@ def add_variants(
             size=variant.size,
             pads_count=variant.pads_count,
             stock=variant.stock,
-            
+            variant_order=getattr(variant, 'variant_order', None)
         )
         db.add(db_variant)
 
@@ -65,7 +65,8 @@ def add_features(
     for feature in features:
         db_feature = ProductFeature(
             product_id=product_id,
-            feature_text=feature.feature_text
+            feature_text=feature.feature_text,
+            feature_order=getattr(feature, 'feature_order', None)
         )
         db.add(db_feature)
 

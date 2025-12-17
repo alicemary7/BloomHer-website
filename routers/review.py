@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from typing import List
 from dependencies import connect_db
@@ -10,7 +10,7 @@ review_router = APIRouter(prefix="/reviews", tags=["Reviews"])
 
 
 @review_router.post("/", response_model=ReviewOut, status_code=status.HTTP_201_CREATED)
-def create_review(user_id: int, data: ReviewCreate, db: Session = Depends(connect_db)):
+def create_review(user_id: int = Query(...), data: ReviewCreate = None, db: Session = Depends(connect_db)):
     product = db.query(Product).filter(Product.id == data.product_id).first()
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
@@ -33,7 +33,7 @@ def get_user_reviews(user_id: int, db: Session = Depends(connect_db)):
 
 
 @review_router.delete("/{review_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_review(review_id: int, user_id: int, db: Session = Depends(connect_db)):
+def delete_review(review_id: int, user_id: int = Query(...), db: Session = Depends(connect_db)):
     review = db.query(Review).filter(Review.id == review_id, Review.user_id == user_id).first()
     if not review:
         raise HTTPException(status_code=404, detail="Review not found")

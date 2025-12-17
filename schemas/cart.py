@@ -12,9 +12,7 @@ class CartOut(BaseModel):
     is_active: bool
     created_at: datetime
     items: List[CartItemOut] = []
-
-    class Config:
-        from_attributes = True
+    model_config = {"from_attributes": True}
 
 class CartSummary(BaseModel):
     id: int

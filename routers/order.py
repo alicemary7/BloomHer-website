@@ -18,31 +18,29 @@ def create_order(
     """Create a new order with items"""
     if order_data is None:
         raise HTTPException(status_code=400, detail="order_data required in body")
-    
+
     total_amount = 0
     order_items = []
-    
+
     # Validate products and calculate total
     for item in order_data.items:
         product = db.query(Product).filter(Product.id == item.product_id).first()
         if not product:
             raise HTTPException(status_code=404, detail=f"Product {item.product_id} not found")
-        
+
         item_total = product.price * item.quantity
         total_amount += item_total
         order_items.append((item.product_id, item.quantity, product.price))
-    
-    # Create order
+
+    # Create order (do not commit until order items are added)
     order = Order(
         user_id=user_id,
         total_amount=total_amount,
         status="pending"
     )
     db.add(order)
-    db.commit()
-    db.refresh(order)
-    return 'value added successfully'
-    
+    db.flush()  # assign order.id without committing
+
     # Add order items
     for product_id, quantity, price in order_items:
         order_item = OrderItem(
@@ -52,7 +50,7 @@ def create_order(
             price=price
         )
         db.add(order_item)
-    
+
     db.commit()
     db.refresh(order)
     return order

@@ -30,7 +30,8 @@ def add_to_cart(
     # Check if item already in cart
     item = db.query(CartItem).filter(
         CartItem.cart_id == cart.id,
-        CartItem.product_id == data.product_id
+        CartItem.product_id == data.product_id,
+        CartItem.variant_order == data.variant_order
     ).first()
 
     if item:
@@ -39,6 +40,7 @@ def add_to_cart(
         item = CartItem(
             cart_id=cart.id,
             product_id=data.product_id,
+            variant_order=data.variant_order,
             quantity=data.quantity,
             price=product.price
         )
@@ -59,6 +61,8 @@ def update_cart_item(
         raise HTTPException(status_code=404, detail="Cart item not found")
     
     item.quantity = data.quantity
+    if hasattr(data, 'variant_order') and data.variant_order is not None:
+        item.variant_order = data.variant_order
     db.commit()
     db.refresh(item)
     return item

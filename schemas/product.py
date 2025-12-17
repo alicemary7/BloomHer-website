@@ -10,9 +10,7 @@ class FeatureCreate(BaseModel):
 class FeatureResponse(BaseModel):
     id: int
     feature_text: str
-
-    class Config:
-        from_attributes = True
+    model_config = {"from_attributes": True}
 
 
 class VariantCreate(BaseModel):
@@ -27,9 +25,7 @@ class VariantResponse(BaseModel):
     size: str
     pads_count: int
     stock: int
-
-    class Config:
-        from_attributes = True
+    model_config = {"from_attributes": True}
 
 
 # ---------------------- PRODUCT SCHEMAS ----------------------
@@ -59,9 +55,7 @@ class ProductResponse(ProductBase):
     is_active: bool
     variants: List[VariantResponse] = []
     features: List[FeatureResponse] = []
-
-    class Config:
-        from_attributes = True
+    model_config = {"from_attributes": True}
 
 
 class VariantUpdate(BaseModel):

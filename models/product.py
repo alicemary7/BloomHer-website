@@ -39,8 +39,7 @@ class ProductVariant(Base):
     size = Column(String, nullable=False) 
     pads_count = Column(Integer, nullable=False) 
     stock = Column(Integer, nullable=False)
-    variant_order = Column(Integer,autoincrement=True)
-
+    variant_order = Column(Integer, nullable=True)
 
     product = relationship("Product", back_populates="variants")
 
@@ -55,6 +54,6 @@ class ProductFeature(Base):
     product_id = Column(Integer, ForeignKey("products.id", ondelete="CASCADE"))
 
     feature_text = Column(String, nullable=False)
-    feature_order = Column(Integer, nullable=False)
+    feature_order = Column(Integer, nullable=True)
 
     product = relationship("Product", back_populates="features")

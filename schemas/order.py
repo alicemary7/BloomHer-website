@@ -9,14 +9,12 @@ class OrderItemCreate(BaseModel):
 
 
 class OrderItemOut(BaseModel):
-    id: int  # order_item_id
+    id: int  
     order_id: int
     product_id: int
     quantity: int
     price: float
-
-    class Config:
-        from_attributes = True
+    model_config = {"from_attributes": True}
 
 
 class OrderCreate(BaseModel):
@@ -24,12 +22,10 @@ class OrderCreate(BaseModel):
 
 
 class OrderOut(BaseModel):
-    id: int  # order_id
+    id: int 
     user_id: int
     total_amount: float
-    status: str  # pending, shipped, delivered
+    status: str  
     order_date: datetime
     items: List[OrderItemOut] = []
-
-    class Config:
-        from_attributes = True
+    model_config = {"from_attributes": True}
