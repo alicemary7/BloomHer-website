@@ -1,17 +1,12 @@
-from datetime import datetime
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
-class SignupSchema(BaseModel):
-    username: str
-    email: str
+class UserSignup(BaseModel):
+    name: str
+    email: EmailStr
     password: str
-    phone: str
-    created_at: datetime
-    updated_at: datetime
 
-class LoginSchema(BaseModel):
-    username:str
-    password:str
-
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
 
 
