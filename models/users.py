@@ -11,7 +11,7 @@ class User(Base):
     email = Column(String(150), unique=True, index=True, nullable=False)
     password = Column(String(100), nullable=False)
 
-    role = Column(String(20), default="user")   # admin / user
+    role = Column(String(20), default="user")   
     is_active = Column(Boolean, default=True)
 
     carts = relationship("Cart", back_populates="user", cascade="all, delete-orphan")

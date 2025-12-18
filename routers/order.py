@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 from dependencies import connect_db
@@ -11,8 +11,8 @@ order_router = APIRouter(prefix="/orders", tags=["Orders"])
 
 @order_router.post("/", response_model=OrderOut, status_code=status.HTTP_201_CREATED)
 def create_order(
-    user_id: int = Query(...),
-    order_data: OrderCreate = None,
+    user_id: int,
+    order_data: OrderCreate,
     db: Session = Depends(connect_db)
 ):
     """Create a new order with items"""
@@ -32,14 +32,15 @@ def create_order(
         total_amount += item_total
         order_items.append((item.product_id, item.quantity, product.price))
 
-    # Create order (do not commit until order items are added)
+    # Create order and commit to get the order ID
     order = Order(
         user_id=user_id,
         total_amount=total_amount,
         status="pending"
     )
     db.add(order)
-    db.flush()  # assign order.id without committing
+    db.commit()  # commit to assign order.id
+    db.refresh(order)
 
     # Add order items
     for product_id, quantity, price in order_items:
@@ -75,7 +76,7 @@ def get_order(order_id: int, db: Session = Depends(connect_db)):
 @order_router.patch("/{order_id}/status", response_model=OrderOut)
 def update_order_status(
     order_id: int,
-    new_status: str = Query(...),
+    new_status: str,
     db: Session = Depends(connect_db)
 ):
     """Update order status (pending, shipped, delivered)"""
@@ -98,4 +99,4 @@ def delete_order(order_id: int, db: Session = Depends(connect_db)):
     
     db.delete(order)
     db.commit()
-    return None
+    return {"message":"deleted successfully"}
