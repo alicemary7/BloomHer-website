@@ -15,9 +15,3 @@ class User(Base):
     is_active = Column(Boolean, default=True)
 
     carts = relationship("Cart", back_populates="user", cascade="all, delete-orphan")
-
-
-
-    
-   
-

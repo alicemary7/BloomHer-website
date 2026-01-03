@@ -9,7 +9,7 @@ from schemas.review import ReviewCreate, ReviewOut
 review_router = APIRouter(prefix="/reviews", tags=["Reviews"])
 
 
-@review_router.post("/", response_model=ReviewOut, status_code=status.HTTP_201_CREATED)
+@review_router.post("/", status_code=status.HTTP_201_CREATED)
 def create_review(user_id: int = Query(...), data: ReviewCreate = None, db: Session = Depends(connect_db)):
     product = db.query(Product).filter(Product.id == data.product_id).first()
     if not product:
@@ -22,12 +22,12 @@ def create_review(user_id: int = Query(...), data: ReviewCreate = None, db: Sess
     return review
 
 
-@review_router.get("/product/{product_id}", response_model=List[ReviewOut])
+@review_router.get("/product/{product_id}")
 def get_product_reviews(product_id: int, db: Session = Depends(connect_db)):
     return db.query(Review).filter(Review.product_id == product_id).all()
 
 
-@review_router.get("/user/{user_id}", response_model=List[ReviewOut])
+@review_router.get("/user/{user_id}")
 def get_user_reviews(user_id: int, db: Session = Depends(connect_db)):
     return db.query(Review).filter(Review.user_id == user_id).all()
 

@@ -2,69 +2,47 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 from dependencies import connect_db
-from models.order import Order, OrderItem
+from models.order import Order
 from models.product import Product
 from schemas.order import OrderCreate, OrderOut
 
 order_router = APIRouter(prefix="/orders", tags=["Orders"])
 
 
-@order_router.post("/", response_model=OrderOut, status_code=status.HTTP_201_CREATED)
+@order_router.post("/", status_code=status.HTTP_201_CREATED, response_model=OrderOut)
 def create_order(
     user_id: int,
     order_data: OrderCreate,
     db: Session = Depends(connect_db)
 ):
-    """Create a new order with items"""
-    if order_data is None:
-        raise HTTPException(status_code=400, detail="order_data required in body")
+    """Create a new order for a single product"""
+    product = db.query(Product).filter(Product.id == order_data.product_id).first()
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
 
-    total_amount = 0
-    order_items = []
+    total_amount = product.price * order_data.quantity
 
-    # Validate products and calculate total
-    for item in order_data.items:
-        product = db.query(Product).filter(Product.id == item.product_id).first()
-        if not product:
-            raise HTTPException(status_code=404, detail=f"Product {item.product_id} not found")
-
-        item_total = product.price * item.quantity
-        total_amount += item_total
-        order_items.append((item.product_id, item.quantity, product.price))
-
-    # Create order and commit to get the order ID
     order = Order(
         user_id=user_id,
+        product_id=order_data.product_id,
+        quantity=order_data.quantity,
         total_amount=total_amount,
         status="pending"
     )
     db.add(order)
-    db.commit()  # commit to assign order.id
-    db.refresh(order)
-
-    # Add order items
-    for product_id, quantity, price in order_items:
-        order_item = OrderItem(
-            order_id=order.id,
-            product_id=product_id,
-            quantity=quantity,
-            price=price
-        )
-        db.add(order_item)
-
     db.commit()
     db.refresh(order)
     return order
 
 
-@order_router.get("/user/{user_id}", response_model=List[OrderOut])
+@order_router.get("/user/{user_id}")
 def get_user_orders(user_id: int, db: Session = Depends(connect_db)):
     """Get all orders for a user"""
     orders = db.query(Order).filter(Order.user_id == user_id).all()
     return orders
 
 
-@order_router.get("/{order_id}", response_model=OrderOut)
+@order_router.get("/{order_id}")
 def get_order(order_id: int, db: Session = Depends(connect_db)):
     """Get order details with all items"""
     order = db.query(Order).filter(Order.id == order_id).first()
@@ -73,7 +51,7 @@ def get_order(order_id: int, db: Session = Depends(connect_db)):
     return order
 
 
-@order_router.patch("/{order_id}/status", response_model=OrderOut)
+@order_router.patch("/{order_id}/status")
 def update_order_status(
     order_id: int,
     new_status: str,

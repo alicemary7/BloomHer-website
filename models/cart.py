@@ -8,13 +8,11 @@ class Cart(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    product_id = Column(Integer, ForeignKey("products.id", ondelete="CASCADE"), nullable=False)
+    quantity = Column(Integer, nullable=False, default=1)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
-    items = relationship(
-        "CartItem",
-        back_populates="cart",
-        cascade="all, delete-orphan"
-    )
     user = relationship("User", back_populates="carts")
+    product = relationship("Product")
 
