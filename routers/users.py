@@ -45,3 +45,57 @@ def login(data: UserLogin, db: Session = Depends(connect_db)):
         "user_id": user.id,
         "role": user.role
     }
+
+@user_router.get("/")
+def get_all_users(db: Session = Depends(connect_db)):
+    users = db.query(User).all()
+    return users
+
+
+@user_router.get("/{user_id}")
+def get_user(user_id: int, db: Session = Depends(connect_db)):
+
+    user = db.query(User).filter(User.id == user_id).first()
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return user
+
+
+
+
+
+@user_router.put("/{user_id}")
+def update_user(user_id: int, data: UserSignup, db: Session = Depends(connect_db)):
+
+    user = db.query(User).filter(User.id == user_id).first()
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    user.name = data.name
+    user.email = data.email
+    user.password = data.password   # no hashing (as requested)
+
+    db.commit()
+    db.refresh(user)
+
+    return {"message": "User updated successfully"}
+
+
+
+@user_router.delete("/{user_id}")
+def delete_user(user_id: int, db: Session = Depends(connect_db)):
+
+    user = db.query(User).filter(User.id == user_id).first()
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    user.is_active = False
+    db.commit()
+
+    return {"message": "User deactivated successfully"}
+
+

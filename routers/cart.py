@@ -9,13 +9,13 @@ cart_router = APIRouter(prefix="/cart", tags=["Cart"])
 
 @cart_router.get("/{user_id}", response_model=List[CartOut])
 def get_cart(user_id: int, db: Session = Depends(connect_db)):
-    # Return all cart items for the user
+ 
     cart_items = db.query(Cart).filter(Cart.user_id == user_id).all()
     return cart_items
 
 @cart_router.post("/", status_code=status.HTTP_201_CREATED, response_model=CartOut)
 def add_to_cart(user_id: int, cart_data: CartCreate, db: Session = Depends(connect_db)):
-    # Check if item already exists for this user
+
     existing_item = db.query(Cart).filter(
         Cart.user_id == user_id, 
         Cart.product_id == cart_data.product_id
