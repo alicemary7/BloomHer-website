@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import List
+# from typing import List
 from dependencies import connect_db
 from models.order import Order
 from models.product import Product
@@ -15,7 +15,7 @@ def create_order(
     order_data: OrderCreate,
     db: Session = Depends(connect_db)
 ):
-    """Create a new order for a single product"""
+    
     product = db.query(Product).filter(Product.id == order_data.product_id).first()
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
@@ -37,14 +37,14 @@ def create_order(
 
 @order_router.get("/user/{user_id}")
 def get_user_orders(user_id: int, db: Session = Depends(connect_db)):
-    """Get all orders for a user"""
+   
     orders = db.query(Order).filter(Order.user_id == user_id).all()
     return orders
 
 
 @order_router.get("/{order_id}")
 def get_order(order_id: int, db: Session = Depends(connect_db)):
-    """Get order details with all items"""
+   
     order = db.query(Order).filter(Order.id == order_id).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
@@ -57,7 +57,7 @@ def update_order_status(
     new_status: str,
     db: Session = Depends(connect_db)
 ):
-    """Update order status (pending, shipped, delivered)"""
+   
     order = db.query(Order).filter(Order.id == order_id).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
@@ -70,7 +70,7 @@ def update_order_status(
 
 @order_router.delete("/{order_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_order(order_id: int, db: Session = Depends(connect_db)):
-    """Delete an order and all its items"""
+  
     order = db.query(Order).filter(Order.id == order_id).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")

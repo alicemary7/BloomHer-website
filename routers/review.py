@@ -1,25 +1,31 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import List
 from dependencies import connect_db
 from models.review import Review
 from models.product import Product
-from schemas.review import ReviewCreate, ReviewOut
+from schemas.review import ReviewCreate, ReviewOut, ReviewDelete
 
 review_router = APIRouter(prefix="/reviews", tags=["Reviews"])
 
 
 @review_router.post("/", status_code=status.HTTP_201_CREATED)
-def create_review(user_id: int = Query(...), data: ReviewCreate = None, db: Session = Depends(connect_db)):
+def create_review(data: ReviewCreate, db: Session = Depends(connect_db)):
     product = db.query(Product).filter(Product.id == data.product_id).first()
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
 
-    review = Review(user_id=user_id, product_id=data.product_id, rating=data.rating, comment=data.comment)
+    review = Review(
+        user_id=data.user_id,
+        product_id=data.product_id,
+        rating=data.rating,
+        comment=data.comment,
+    )
+
     db.add(review)
     db.commit()
     db.refresh(review)
-    return review
+
+    return {"message": "Review added successfully", "review_id": review.id}
 
 
 @review_router.get("/product/{product_id}")
@@ -33,10 +39,22 @@ def get_user_reviews(user_id: int, db: Session = Depends(connect_db)):
 
 
 @review_router.delete("/{review_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_review(review_id: int, user_id: int = Query(...), db: Session = Depends(connect_db)):
-    review = db.query(Review).filter(Review.id == review_id, Review.user_id == user_id).first()
+def delete_review(
+    review_id: int, data: ReviewDelete, db: Session = Depends(connect_db)
+):
+
+    review = (
+        db.query(Review)
+        .filter(Review.id == review_id, Review.user_id == data.user_id)
+        .first()
+    )
+
     if not review:
-        raise HTTPException(status_code=404, detail="Review not found")
+        raise HTTPException(
+            status_code=404, detail="Review not found or not authorized"
+        )
+
     db.delete(review)
     db.commit()
+
     return None

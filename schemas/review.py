@@ -16,4 +16,9 @@ class ReviewOut(BaseModel):
     rating: float
     comment: Optional[str]
     created_at: datetime
+
+
+class ReviewDelete(BaseModel):
+    user_id: int
+
     
