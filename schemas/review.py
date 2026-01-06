@@ -4,8 +4,9 @@ from datetime import datetime
 
 
 class ReviewCreate(BaseModel):
+    # user_id:int
     product_id: int
-    rating: float
+    rating: int
     comment: Optional[str] = None
 
 
@@ -13,7 +14,7 @@ class ReviewOut(BaseModel):
     id: int
     user_id: int
     product_id: int
-    rating: float
+    rating: int
     comment: Optional[str]
     created_at: datetime
 

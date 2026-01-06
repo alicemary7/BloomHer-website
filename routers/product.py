@@ -13,13 +13,22 @@ def create_product(data: ProductCreate, db: Session = Depends(connect_db)):
     db.add(product)
     db.commit()
     db.refresh(product)
-
     return product
 
 
 @router.get("/")
 def get_products(db: Session = Depends(connect_db)):
     return db.query(Product).filter(Product.is_active == True).all()
+
+
+@router.get("/{product_id}")
+def get_single_product(
+    product_id: int, db: Session = Depends(connect_db)
+):
+    single_product = db.query(Product).filter(Product.id == product_id).first()
+    if not single_product:
+        raise HTTPException(status_code=404, detail="product not found")
+    return single_product
 
 
 @router.put("/{product_id}")

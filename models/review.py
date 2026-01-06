@@ -10,7 +10,7 @@ class Review(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     product_id = Column(Integer, ForeignKey("products.id", ondelete="CASCADE"), nullable=False)
-    rating = Column(Float, nullable=False)
+    rating = Column(Integer, nullable=False)
     comment = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 

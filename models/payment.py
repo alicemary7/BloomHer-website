@@ -9,7 +9,7 @@ class Payment(Base):
     id = Column(Integer, primary_key=True, index=True)
     order_id = Column(Integer, ForeignKey("orders.id"), nullable=False)
     amount = Column(Float, nullable=False)
-    payment_method = Column(String, nullable=False) # e.g., "credit_card", "paypal"
+    payment_method = Column(String,default="credit_card") # e.g., "credit_card", "paypal"
     status = Column(String, default="completed")
     created_at = Column(DateTime, default=datetime.utcnow)
 

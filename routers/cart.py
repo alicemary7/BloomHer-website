@@ -37,11 +37,11 @@ def add_to_cart(user_id: int, cart_data: CartCreate, db: Session = Depends(conne
     db.refresh(new_cart_item)
     return new_cart_item
 
-@cart_router.delete("/{user_id}")
-def clear_cart(user_id: int, db: Session = Depends(connect_db)):
-    db.query(Cart).filter(Cart.user_id == user_id).delete()
-    db.commit()
-    return {"message": "Cart cleared successfully"}
+# @cart_router.delete("/{user_id}")
+# def clear_cart(user_id: int, db: Session = Depends(connect_db)):
+#     db.query(Cart).filter(Cart.user_id == user_id).delete()
+#     db.commit()
+#     return {"message": "Cart cleared successfully"}
 
 @cart_router.delete("/{user_id}/item/{product_id}")
 def remove_cart_item(user_id: int, product_id: int, db: Session = Depends(connect_db)):
